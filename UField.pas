@@ -32,6 +32,10 @@ uses
     FIHeadFull: TBitMap;
     FISegmentFull: TBitMap;
     FIHeadFull180: TBitMap;
+    FITail: TBitMap;
+    FITail180: TBitMap;
+    FITail90: TBitMap;
+    FITail270: TBitMap;
     procedure SetIHeadClosed(const Value: TBitMap);
     procedure SetIHeadClosed180(const Value: TBitMap);
     procedure SetIHeadClosed270(const Value: TBitMap);
@@ -52,11 +56,16 @@ uses
     procedure SetISegmentEmpty90(const Value: TBitMap);
     procedure SetISegmentFull(const Value: TBitMap);
     procedure SetISegmentFull90(const Value: TBitMap);
+    procedure SetITail(const Value: TBitMap);
+    procedure SetITail180(const Value: TBitMap);
+    procedure SetITail270(const Value: TBitMap);
+    procedure SetITail90(const Value: TBitMap);
 
   public
     constructor Create(ACanvas: TCanvas);
     destructor Destroy;
     procedure DrawSnake(ASnake: TSnake; APoint: TPoint );
+    procedure DrawBody(ABody: TBody; X, Y: Integer);
 
   published
     property ISegmentEmpty: TBitMap read FISegmentEmpty write SetISegmentEmpty;
@@ -79,6 +88,10 @@ uses
     property IHeadCrash90: TBitMap read FIHeadCrash90 write SetIHeadCrash90;
     property IHeadCrash180: TBitMap read FIHeadCrash180 write SetIHeadCrash180;
     property IHeadCrash270: TBitMap read FIHeadCrash270 write SetIHeadCrash270;
+    property ITail: TBitMap read FITail write SetITail;
+    property ITail90: TBitMap read FITail90 write SetITail90;
+    property ITail180: TBitMap read FITail180 write SetITail180;
+    property ITail270: TBitMap read FITail270 write SetITail270;
   end;
 
 implementation
@@ -88,28 +101,104 @@ implementation
 constructor TField.Create(ACanvas: TCanvas);
 begin
   Self.Canvas := ACanvas;
+
   ISegmentEmpty := TBitMap.Create;
-  ISegmentEmpty.LoadFromFile('Picture\Body\SegmentEmpty.bmp');
+  ISegmentEmpty.LoadFromFile('picture\Body\SegmentEmpty.bmp');
+  ISegmentEmpty90 := TBitMap.Create;
+  ISegmentEmpty90.LoadFromFile('picture\Body\SegmentEmpty90.bmp');
+
+  ISegmentFull := TBitMap.Create;
+  ISegmentFull.LoadFromFile('picture\Body\SegmentFull.bmp');
+  ISegmentFull90 := TBitMap.Create;
+  ISegmentFull90.LoadFromFile('picture\Body\SegmentFull90.bmp');
 
   IHeadClosed := TBitMap.Create;
-  IHeadClosed.LoadFromFile('Picture\Head\HeadClosed.bmp');
- { ISegmentEmpty90.LoadFromFile('picture\SegmentEmpty90.bmp');
-  ISegmentFull.LoadFromFile('picture\SegmentFull.bmp');
-  ISegmentFull90.LoadFromFile('picture\SegmentFull90.bmp');
-  IHeadClosed.LoadFromFile('picture\HeadClosed.bmp');
-  IHeadClosed90.LoadFromFile('picture\HeadClosed90.bmp');
-  IHeadClosed180.LoadFromFile('picture\HeadClosed180.bmp');
-  IHeadClosed270.LoadFromFile('picture\HeadClosed270.bmp');
-  IHeadOpen.LoadFromFile('picture\HeadOpen.bmp');
-  }
+  IHeadClosed.LoadFromFile('picture\Head\HeadClosed.bmp');
+  IHeadClosed90 := TBitMap.Create;
+  IHeadClosed90.LoadFromFile('picture\Head\HeadClosed90.bmp');
+  IHeadClosed180 := TBitMap.Create;
+  IHeadClosed180.LoadFromFile('picture\Head\HeadClosed180.bmp');
+  IHeadClosed270 := TBitMap.Create;
+  IHeadClosed270.LoadFromFile('picture\Head\HeadClosed270.bmp');
 
+  IHeadOpen := TBitMap.Create;
+  IHeadOpen.LoadFromFile('picture\Head\HeadOpen.bmp');
+  IHeadOpen90 := TBitMap.Create;
+  IHeadOpen90.LoadFromFile('picture\Head\HeadOpen90.bmp');
+  IHeadOpen180 := TBitMap.Create;
+  IHeadOpen180.LoadFromFile('picture\Head\HeadOpen180.bmp');
+  IHeadOpen270 := TBitMap.Create;
+  IHeadOpen270.LoadFromFile('picture\Head\HeadOpen270.bmp');
 
+  IHeadCrash := TBitMap.Create;
+  IHeadCrash.LoadFromFile('picture\Head\HeadCrash.bmp');
+  IHeadCrash90 := TBitMap.Create;
+  IHeadCrash90.LoadFromFile('picture\Head\HeadCrash90.bmp');
+  IHeadCrash180 := TBitMap.Create;
+  IHeadCrash180.LoadFromFile('picture\Head\HeadCrash180.bmp');
+  IHeadCrash270 := TBitMap.Create;
+  IHeadCrash270.LoadFromFile('picture\Head\HeadCrash270.bmp');
 
+  ITail := TBitMap.Create;
+  ITail.LoadFromFile('picture\Tail\Tail.bmp');
+  ITail90 := TBitMap.Create;
+  ITail90.LoadFromFile('picture\Tail\Tail90.bmp');
+  ITail180 := TBitMap.Create;
+  ITail180.LoadFromFile('picture\Tail\Tail180.bmp');
+  ITail270 := TBitMap.Create;
+  ITail270.LoadFromFile('picture\Tail\Tail270.bmp');
 end;
 
 destructor TField.Destroy;
 begin
   ISegmentEmpty.Free;
+end;
+
+procedure TField.DrawBody(ABody: TBody; X, Y: Integer);
+var
+  i: Integer;
+begin
+  for i := 0 to Length(ABody) - 1 do
+  begin
+    case ABody[i].Direction of
+    dUp:
+      begin
+        case ABody[i].SegmentSost of
+          sEmpty:Canvas.Draw(X, Y, ISegmentEmpty90);
+          sFull:Canvas.Draw(X, Y, ISegmentFull90);
+          sTail:Canvas.Draw(X, Y, ITail270);
+        end;
+        Y := Y + 30;
+      end;
+    dDown:
+      begin
+        case ABody[i].SegmentSost of
+          sEmpty:Canvas.Draw(X, Y, ISegmentEmpty90);
+          sFull:Canvas.Draw(X, Y, ISegmentFull90);
+          sTail:Canvas.Draw(X, Y, ITail90);
+        end;
+        Y := Y - 30;
+      end;
+    dRight:
+      begin
+        case ABody[i].SegmentSost of
+          sEmpty:Canvas.Draw(X, Y, ISegmentEmpty);
+          sFull:Canvas.Draw(X, Y, ISegmentFull);
+          sTail:Canvas.Draw(X, Y, ITail);
+        end;
+        X := X - 30;
+      end;
+    dLeft:
+      begin
+        case ABody[i].SegmentSost of
+          sEmpty:Canvas.Draw(X, Y, ISegmentEmpty);
+          sFull:Canvas.Draw(X, Y, ISegmentFull);
+          sTail:Canvas.Draw(X, Y, ITail180);
+        end;
+        X := X + 30;
+      end;
+    end;
+  end;
 end;
 
 procedure TField.DrawSnake(ASnake: TSnake; APoint: TPoint);
@@ -130,19 +219,7 @@ begin
   dLeft:;
   end;
 
-  for i := 0 to Length(ASnake.Body) - 1 do
-  begin
-    case ASnake.Body[i].Direction of
-    dUp:;
-    dDown:;
-    dRight:
-    begin
-      Canvas.Draw(X, Y, ISegmentEmpty);
-      X := X - 30;
-    end;
-    dLeft:;
-    end;
-  end;
+  DrawBody(ASnake.Body, X, Y);
 
 
 
@@ -253,6 +330,26 @@ end;
 procedure TField.SetISegmentFull90(const Value: TBitMap);
 begin
   FISegmentFull90 := Value;
+end;
+
+procedure TField.SetITail(const Value: TBitMap);
+begin
+  FITail := Value;
+end;
+
+procedure TField.SetITail180(const Value: TBitMap);
+begin
+  FITail180 := Value;
+end;
+
+procedure TField.SetITail270(const Value: TBitMap);
+begin
+  FITail270 := Value;
+end;
+
+procedure TField.SetITail90(const Value: TBitMap);
+begin
+  FITail90 := Value;
 end;
 
 end.

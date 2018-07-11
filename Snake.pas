@@ -8,7 +8,7 @@ interface
   type
     TDirection = (dUp, dDown, dRight, dLeft);
   type
-    TSegmentSost = (sEmpty, sFull);
+    TSegmentSost = (sEmpty, sFull, sTail);
   type
     THeadSost = (hClosed, hOpen, hFull, hCrash);
 
@@ -20,7 +20,7 @@ interface
     procedure SetDirection(const Value: TDirection);
     procedure SetSegmentSost(const Value: TSegmentSost);
   public
-    constructor Create(ADirection: TDirection);
+    constructor Create(ADirection: TDirection; ASegmentSost: TSegmentSost = sEmpty);
   published
     property Direction: TDirection read FDirection write SetDirection;
     property SegmentSost: TSegmentSost read FSegmentSost write SetSegmentSost;
@@ -54,7 +54,7 @@ interface
 
 implementation
 const
-  SnakeLength = 10;//Длина змеи вместе с головой
+  SnakeLength = 10;//Длина змеи вместе с головой и хвостом
   SnakeDirection = dRight;//Направление змеи
 
 
@@ -62,10 +62,10 @@ const
 
 { TSegment }
 
-constructor TSegment.Create(ADirection: TDirection);
+constructor TSegment.Create(ADirection: TDirection; ASegmentSost: TSegmentSost = sEmpty);
 begin
   Self.Direction := ADirection;
-  Self.SegmentSost := sEmpty;
+  Self.SegmentSost := ASegmentSost;
 end;
 
 procedure TSegment.SetDirection(const Value: TDirection);
@@ -92,10 +92,11 @@ var
   i: integer;
 begin
   SetLength(FBody, SnakeLength - 1);
-  for i := 0 to SnakeLength - 2 do
+  for i := 0 to SnakeLength - 3 do
   begin
     Body[i] := TSegment.Create(SnakeDirection);
   end;
+  Body[SnakeLength - 2] := TSegment.Create(SnakeDirection, sTail);
   Head := THead.Create(SnakeDirection);
   Head.HeadSost := hClosed;
 end;
